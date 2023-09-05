@@ -1,8 +1,6 @@
 import React from "react";
 
 function ImagePopup(props) {
-
-    console.log(props.card)
   return (
     <div
       className={`popup popup_type_image-overlay ${
@@ -12,10 +10,10 @@ function ImagePopup(props) {
       <div className="popup__overlay-holder">
         <img
           className="popup__image"
-          alt={`${props.card ? props.card.name : ''}`}
+          alt={`${props.card ? props.card.name : ""}`}
           src={`${props.card ? props.card.link : ""}`}
         />
-        <p className="popup__span">{`${props.card ? props.card.name : ''}`}</p>
+        <p className="popup__span">{`${props.card ? props.card.name : ""}`}</p>
         <button
           className="popup__close-button"
           onClick={props.onClose}

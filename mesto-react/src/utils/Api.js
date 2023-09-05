@@ -1,5 +1,3 @@
-import React from "react";
-
 class Api {
   constructor(config) {
     this._link = config.baseUrl;
@@ -56,15 +54,13 @@ class Api {
     }).then(this._checkResponse);
   }
 
-
-  changeLikeCardStatus(cardId, isLiked){
-    if(isLiked){ 
+  changeLikeCardStatus(cardId, isLiked) {
+    if (isLiked) {
       return fetch(`${this._link}/cards/${cardId}/likes`, {
         method: "PUT",
         headers: this._headers,
       }).then(this._checkResponse);
-    }
-    else{ 
+    } else {
       return fetch(`${this._link}/cards/${cardId}/likes`, {
         method: "DELETE",
         headers: this._headers,

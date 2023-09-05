@@ -1,21 +1,9 @@
 import React from "react";
-import api from "../utils/Api.js";
 import Card from "./Card.js";
 import CurrentUserContext from "../contexts/CurrentUserContext.js";
 
 function Main(props) {
-  // const [cards, setCards] = React.useState([]);
-
-  const UserContext = React.useContext(CurrentUserContext)
-
- /* React.useEffect(() => {
-    api
-      .getInitialCards()
-      .then((res) => {
-        setCards(res);
-      })
-      .catch((err) => console.error(err));
-  }, []); */
+  const UserContext = React.useContext(CurrentUserContext);
 
   return (
     <main className="content">
@@ -51,7 +39,13 @@ function Main(props) {
       </section>
       <section className="grid-net" aria-label="грид-сетка">
         {props.cards.map((item, i) => (
-          <Card onCardDelete={props.onCardDelete} onCardLike={props.onCardLike} key={i} {...item} onCardClick={props.handleCardClick} />
+          <Card
+            onDelete={props.onDelete}
+            onCardLike={props.onCardLike}
+            key={item._id}
+            {...item}
+            onCardClick={props.handleCardClick}
+          />
         ))}
       </section>
     </main>

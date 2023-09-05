@@ -12,7 +12,7 @@ export default function EditProfilePopup(props) {
   React.useEffect(() => {
     setName(currentUser.name);
     setAbout(currentUser.about);
-  }, [currentUser]);
+  }, [currentUser && props.isOpen]);
 
   function handleNameInput(e) {
     setName(e.target.value);
@@ -28,8 +28,8 @@ export default function EditProfilePopup(props) {
 
     // Передаём значения управляемых компонентов во внешний обработчик
     props.onSubmit({
-     name,
-     about
+      name,
+      about,
     });
   }
 
@@ -53,13 +53,13 @@ export default function EditProfilePopup(props) {
           minLength="2"
           maxLength="40"
           onChange={handleNameInput}
-          value={name}
+          value={name || ""}
         />
         <span className="username-error popup__input-error"></span>
       </label>
       <label className="popup__field">
         <input
-          value={about}
+          value={about || ""}
           className="popup__input popup__input_type_occupation"
           id="occupation"
           name="occupation"
