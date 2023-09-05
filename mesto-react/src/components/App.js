@@ -3,8 +3,12 @@ import "../App.css";
 import Header from "./Header.js";
 import Main from "./Main.js";
 import Footer from "./Footer.js";
-import PopupWithForm from "./PopupWithForm.js";
 import ImagePopup from "./ImagePopup.js";
+import api from '../utils/Api.js'
+import CurrentUserContext from "../contexts/CurrentUserContext";
+import EditProfilePopup from './EditProfilePopup'
+import EditAvatarPopup from "./EditAvatarPopup";
+import AddPlacePopup from "./AddPlacePopup";
 
 function App() {
   function handleEditAvatarClick() {
@@ -28,6 +32,60 @@ function App() {
     setSelectedCard(null);
   }
 
+  function handleCardLike(card) {
+    // Снова проверяем, есть ли уже лайк на этой карточке
+    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    
+    // Отправляем запрос в API и получаем обновлённые данные карточки
+    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
+        setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
+    });
+}
+
+  function handleCardDelete(id){ 
+    api.deleteCard(id)
+    .then((card) => {
+      console.log(card)
+    const FilterArray = cards.filter((c) => c._id !== id)
+  setCards(FilterArray)}).catch((err) => console.error(err))
+  }
+
+  function handleSubmitUserForm(obj){ 
+    api.setNewUserInfo(obj)
+    .then((res) => { 
+      setCurrentUser(res)
+      closeAllPopups()
+    }).catch((err) => console.error(err))
+  }
+
+  function handleAvatarUserForm(avatar){
+    api.addNewAvatar(avatar)
+    .then((res) => { 
+      setCurrentUser(res)
+      closeAllPopups()
+    }).catch((err) => console.error(err))
+  }
+
+  function handleAddPlaceSubmit(card){ 
+    api.addCard(card)
+    .then((res) => { 
+      setCards([res, ...cards])
+      closeAllPopups()
+    }).catch((err) => console.error(err))
+  }
+
+  const [cards, setCards] = React.useState([])
+
+  React.useEffect(() => { 
+    Promise.all([api.getUserFromServer(), api.getInitialCards()])
+    .then(([user, cardsList]) => { 
+      setCards(cardsList)
+      setCurrentUser(user)
+    }).catch((err) => console.error(err))
+  }, [])
+
+  const [currentUser, setCurrentUser] = React.useState({});
+
   const [selectedCard, setSelectedCard] = React.useState(null);
 
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
@@ -37,6 +95,7 @@ function App() {
     React.useState(false);
 
   return (
+    <CurrentUserContext.Provider value={currentUser}>
     <div className="App">
       <Header />
       <Main
@@ -44,97 +103,19 @@ function App() {
         onAddPlace={handleAppPlaceClick}
         onEditAvatar={handleEditAvatarClick}
         handleCardClick={handleCardClick}
+        onCardLike={handleCardLike}
+        cards={cards}
+        onCardDelete={handleCardDelete}
       />
       <Footer />
-      <PopupWithForm
-        isOpen={isEditProfilePopupOpen}
-        name={`profile`}
-        title={`Редактировать профиль`}
-        button={`Сохранить`}
-        onClose={closeAllPopups}
-      >
-        <label className="popup__field">
-          <input
-            className="popup__input popup__input_type_username"
-            id="username"
-            name="username"
-            type="text"
-            placeholder="Имя"
-            required
-            minLength="2"
-            maxLength="40"
-          />
-          <span className="username-error popup__input-error"></span>
-        </label>
-        <label className="popup__field">
-          <input
-            className="popup__input popup__input_type_occupation"
-            id="occupation"
-            name="occupation"
-            type="text"
-            placeholder="О себе"
-            required
-            minLength="2"
-            maxLength="200"
-          />
-          <span className="occupation-error popup__input-error"></span>
-        </label>
-      </PopupWithForm>
-      <PopupWithForm
-        onClose={closeAllPopups}
-        isOpen={isAddPlacePopupOpen}
-        name={`create-card`}
-        title={`Новое место`}
-        button={`Сохранить`}
-      >
-        <label className="popup__field">
-          <input
-            className="popup__input popup__input_type_place-name"
-            id="name"
-            name="name"
-            type="text"
-            placeholder="Название"
-            required
-            minLength="2"
-            maxLength="30"
-          />
-          <span className="name-error popup__input-error"></span>
-        </label>
-        <label className="popup__field">
-          <input
-            className="popup__input popup__input_type_link"
-            id="link"
-            name="link"
-            type="url"
-            placeholder="Ссылка на картинку"
-            required
-          />
-          <span className="link-error popup__input-error"></span>
-        </label>
-      </PopupWithForm>
-      <PopupWithForm
-        isOpen={isEditAvatarPopupOpen}
-        onClose={closeAllPopups}
-        name={`profile-avatar`}
-        title={`Обновить аватар`}
-        button={`Сохранить`}
-        container={"type-avatar"}
-        isAvatarContainer={true}
-      >
-        <label className="popup__field">
-          <input
-            className="popup__input popup__input_type_avatar"
-            name="avatar"
-            id="avatar"
-            minLength="5"
-            maxLength="200"
-            type="url"
-            required
-            placeholder="Ссылка"
-          />
-          <span className="avatar-error popup__input-error"></span>
-        </label>
-      </PopupWithForm>
+
+
+      <EditProfilePopup onSubmit={handleSubmitUserForm} isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} />
+      
+     <EditAvatarPopup onSubmit={handleAvatarUserForm} isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups}/>
+
+     <AddPlacePopup onSubmit={handleAddPlaceSubmit} isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} />
+  
       <ImagePopup onClose={closeAllPopups} card={selectedCard} />
 
       <div className="popup popup_type_delete-card">
@@ -152,6 +133,7 @@ function App() {
         </div>
       </div>
     </div>
+    </CurrentUserContext.Provider>
   );
 }
 

@@ -32,8 +32,8 @@ class Api {
       method: "PATCH",
       headers: this._headers,
       body: JSON.stringify({
-        name: data.username,
-        about: data.occupation,
+        name: data.name,
+        about: data.about,
       }),
     }).then(this._checkResponse);
   }
@@ -56,18 +56,20 @@ class Api {
     }).then(this._checkResponse);
   }
 
-  deleteLike(cardId) {
-    return fetch(`${this._link}/cards/${cardId}/likes`, {
-      method: "DELETE",
-      headers: this._headers,
-    }).then(this._checkResponse);
-  }
 
-  addLike(cardId) {
-    return fetch(`${this._link}/cards/${cardId}/likes`, {
-      method: "PUT",
-      headers: this._headers,
-    }).then(this._checkResponse);
+  changeLikeCardStatus(cardId, isLiked){
+    if(isLiked){ 
+      return fetch(`${this._link}/cards/${cardId}/likes`, {
+        method: "PUT",
+        headers: this._headers,
+      }).then(this._checkResponse);
+    }
+    else{ 
+      return fetch(`${this._link}/cards/${cardId}/likes`, {
+        method: "DELETE",
+        headers: this._headers,
+      }).then(this._checkResponse);
+    }
   }
 
   addNewAvatar(data) {
